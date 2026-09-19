@@ -1,0 +1,58 @@
+{{define "content"}}
+{{if .Freezes}}
+{{range .Freezes}}<div class="banner warn">
+  <strong>{{.Resource}} is frozen</strong> — {{.Reason}} (by {{.By}})
+</div>{{end}}
+{{end}}
+{{if .Paging}}
+{{range .Paging}}<div class="banner bad">
+  <strong>{{.App}} → {{.Environment}} needs a human.</strong>
+  {{.State}}: {{.Error}}
+  <a href="/deployments/{{.ID}}">open</a>
+</div>{{end}}
+{{end}}
+
+<h2>Apps &times; environments</h2>
+<div class="grid">
+{{range .Status}}
+  <div class="card">
+    <h3>{{.App}} <span class="dim">→</span> {{.Environment}}</h3>
+    <div class="ver">{{if .Version}}{{.Version}}{{else}}<span class="dim">never deployed</span>{{end}}</div>
+    <div class="row">
+      <span class="state {{stateClass .State}}">{{if .State}}{{.State}}{{else}}—{{end}}</span>
+      <span class="dim">{{if .Since}}{{since .Since}}{{end}}</span>
+    </div>
+    {{if .Frozen}}<div class="row dim">frozen: {{.FreezeReason}}</div>{{end}}
+  </div>
+{{end}}
+</div>
+
+<h2>Recent deployments</h2>
+<table>
+  <tr><th>When</th><th>App</th><th>Env</th><th>Version</th><th>State</th><th>By</th></tr>
+  {{range .Recent}}
+  <tr>
+    <td class="dim">{{since (createdAt .)}}</td>
+    <td><a href="/deployments/{{.ID}}">{{.App}}</a></td>
+    <td>{{.Environment}}</td>
+    <td class="mono">{{.Version}}</td>
+    <td><span class="state {{stateClass .State}}">{{.State}}</span></td>
+    <td class="dim">{{.TriggeredBy}}</td>
+  </tr>
+  {{else}}
+  <tr><td colspan="6" class="dim">Nothing deployed yet.</td></tr>
+  {{end}}
+</table>
+
+<h2>DORA</h2>
+<table>
+  <tr><th>Deployment frequency</th><th>Change failure rate</th><th>Median duration</th><th>MTTR</th></tr>
+  <tr>
+    <td>{{.Dora.Frequency}}</td>
+    <td>{{.Dora.ChangeFailureRate}}</td>
+    <td>{{.Dora.MedianDuration}}</td>
+    <td>{{.Dora.MTTR}}</td>
+  </tr>
+</table>
+<p class="dim">Over the last {{.Dora.Window}}. Change failure rate is rollbacks ÷ deploys.</p>
+{{end}}

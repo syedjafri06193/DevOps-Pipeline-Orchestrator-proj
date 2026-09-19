@@ -1,0 +1,24 @@
+{{define "layout"}}<!doctype html>
+<html lang="en" data-page="{{.Page}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · orch</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header>
+  <h1>orch</h1>
+  <nav>
+    <a href="/" class="{{if eq .Page "overview"}}on{{end}}">Overview</a>
+    <a href="/deployments" class="{{if eq .Page "history"}}on{{end}}">History</a>
+    <a href="/audit" class="{{if eq .Page "audit"}}on{{end}}">Audit</a>
+    <a href="/config" class="{{if eq .Page "config"}}on{{end}}">Config</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="head" title="audit chain head">{{shortHash .AuditHead}}</span>
+</header>
+<main>{{template "content" .}}</main>
+<footer>{{.Version}} · node {{.NodeID}}</footer>
+</body>
+</html>{{end}}

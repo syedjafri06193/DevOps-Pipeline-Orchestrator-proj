@@ -1,0 +1,5 @@
+{{define "content"}}
+<h2>Configuration</h2>
+<p class="dim">Loaded from <span class="mono">{{.SourceFile}}</span>{{if .SourceCommit}} at <span class="mono">{{.SourceCommit}}</span>{{end}}.</p>
+<pre>{{.Rendered}}</pre>
+{{end}}

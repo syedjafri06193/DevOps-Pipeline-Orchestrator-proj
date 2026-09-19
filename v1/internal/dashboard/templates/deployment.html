@@ -1,0 +1,74 @@
+{{define "content"}}
+{{$d := .Deployment}}
+{{if .Deployment.Error}}<div class="banner {{if pages .Deployment.State}}bad{{else}}warn{{end}}">
+  {{.Deployment.Error}}
+</div>{{end}}
+
+<h2>{{$d.App}} &rarr; {{$d.Environment}}</h2>
+<table>
+  <tr><th>Version</th><td class="mono">{{$d.Version}}</td>
+      <th>From</th><td class="mono">{{if $d.PreviousVersion}}{{$d.PreviousVersion}}{{else}}—{{end}}</td></tr>
+  <tr><th>State</th><td><span class="state {{stateClass $d.State}}" id="state">{{$d.State}}</span></td>
+      <th>Strategy</th><td>{{$d.Strategy}}</td></tr>
+  <tr><th>By</th><td>{{$d.TriggeredBy}} <span class="dim">via {{$d.TriggerSource}}</span></td>
+      <th>Started</th><td class="dim">{{since (createdAt $d)}}</td></tr>
+  <tr><th>ID</th><td class="mono" colspan="3">{{$d.ID}}</td></tr>
+</table>
+
+{{if .Approvals}}
+<h2>Approvals</h2>
+<table>
+  <tr><th>User</th><th>When</th><th>Via</th></tr>
+  {{range .Approvals}}<tr><td>{{.User}}</td><td class="dim">{{since .At}}</td><td class="dim">{{.Source}}</td></tr>{{end}}
+</table>
+{{end}}
+
+<h2>Steps</h2>
+<ul class="steps">
+{{range .Steps}}
+  <li><span class="state {{stepClass .State}}">{{.State}}</span>
+      <strong>{{.Name}}</strong>
+      {{if .Error}}<span class="dim">{{.Error}}</span>{{end}}</li>
+{{else}}
+  <li class="dim">No steps recorded.</li>
+{{end}}
+</ul>
+
+{{if .Samples}}
+<h2>Health samples</h2>
+<table class="samples">
+  <tr><th>Criterion</th><th>Value</th><th>Baseline</th><th></th><th>Why</th></tr>
+  {{range .Samples}}
+  <tr>
+    <td>{{.Criterion}}</td>
+    <td>{{printf "%.5g" .Value}}</td>
+    <td>{{if gt .Baseline 0.0}}{{printf "%.5g" .Baseline}}{{else}}<span class="dim">—</span>{{end}}</td>
+    <td><span class="state {{if .Healthy}}ok{{else}}bad{{end}}">{{if .Healthy}}pass{{else}}fail{{end}}</span></td>
+    <td class="dim">{{.Note}}</td>
+  </tr>
+  {{end}}
+</table>
+{{end}}
+
+<h2>Log</h2>
+<pre id="log">{{.Log}}</pre>
+
+<script>
+// Live updates over SSE. Section 11.1: the browser reconnects on its own and
+// resends Last-Event-ID, so the server replays what was missed -- which is
+// why there is no reconnection logic here.
+const es = new EventSource("/events/{{$d.ID}}");
+es.addEventListener("deployment", (e) => {
+  try {
+    const ev = JSON.parse(e.data);
+    const el = document.getElementById("state");
+    if (ev.state && el) { el.textContent = ev.state; }
+    if (ev.state && ["SUCCEEDED","FAILED","ROLLED_BACK","ROLLBACK_FAILED","ABORTED","UNKNOWN"].includes(ev.state)) {
+      es.close();
+      setTimeout(() => location.reload(), 400);
+    }
+  } catch (_) {}
+});
+es.addEventListener("gap", () => location.reload());
+</script>
+{{end}}

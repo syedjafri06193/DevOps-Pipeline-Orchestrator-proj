@@ -1,0 +1,19 @@
+{{define "content"}}
+<h2>Deployments</h2>
+<table>
+  <tr><th>When</th><th>App</th><th>Env</th><th>Version</th><th>State</th><th>By</th><th>Took</th></tr>
+  {{range .Recent}}
+  <tr>
+    <td class="dim">{{since (createdAt .)}}</td>
+    <td><a href="/deployments/{{.ID}}">{{.App}}</a></td>
+    <td>{{.Environment}}</td>
+    <td class="mono">{{.Version}}</td>
+    <td><span class="state {{stateClass .State}}">{{.State}}</span></td>
+    <td class="dim">{{.TriggeredBy}}</td>
+    <td class="dim">{{duration .}}</td>
+  </tr>
+  {{else}}
+  <tr><td colspan="7" class="dim">Nothing yet.</td></tr>
+  {{end}}
+</table>
+{{end}}

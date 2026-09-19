@@ -1,0 +1,24 @@
+{{define "content"}}
+<div class="banner {{if .Valid}}warn{{else}}bad{{end}}" style="{{if .Valid}}color:var(--ok);background:color-mix(in srgb, var(--ok) 9%, transparent){{end}}">
+  {{if .Valid}}Chain verified — {{len .Entries}} entries, head {{shortHash .AuditHead}}
+  {{else}}<strong>Chain verification FAILED:</strong> {{.VerifyError}}{{end}}
+</div>
+
+<h2>Audit log</h2>
+<table>
+  <tr><th>#</th><th>When</th><th>Actor</th><th>Action</th><th>Resource</th><th>Detail</th></tr>
+  {{range .Entries}}
+  <tr>
+    <td class="dim">{{.ID}}</td>
+    <td class="dim">{{since .At}}</td>
+    <td>{{.Actor}}</td>
+    <td class="mono">{{.Action}}</td>
+    <td class="mono dim">{{.Resource}}</td>
+    <td class="dim">{{detail .Detail}}</td>
+  </tr>
+  {{end}}
+</table>
+<p class="dim">Each entry hashes the previous one. Anchor the head somewhere this
+process cannot write, so an attacker with database access cannot rewrite
+history and recompute the chain.</p>
+{{end}}

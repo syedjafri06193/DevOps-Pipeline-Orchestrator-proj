@@ -1,0 +1,148 @@
+# orch.yaml — the configuration from design.md section 13, as this
+# implementation actually loads it.
+#
+# Everything here is validated at load time. `orch config validate` in CI on
+# the config repo is the point: a typo'd `failure_threshhold` silently
+# defaulting is the bug that causes a spurious 3am rollback.
+
+version: 1
+
+apps:
+  web:
+    artifact:
+      type: ecr
+      repository: 123456789.dkr.ecr.us-east-1.amazonaws.com/web
+      require_signature: true          # cosign verification before deploy
+
+    environments:
+      dev:
+        provider: fake
+        config:
+          cluster: dev
+          service: web
+        strategy: { type: rolling, batch_size: 50% }
+        verify:
+          bake: 2m
+          sample_interval: 20s
+          min_samples: 3
+          criteria:
+            - name: http-ok
+              verifier: http
+              url: https://dev.example.com/healthz
+              expect_status: 200
+
+      staging:
+        provider: fake
+        config: { cluster: staging, service: web }
+        strategy: { type: blue-green }
+        promote_from: dev                # artifact must have passed dev
+        verify:
+          bake: 10m
+          sample_interval: 30s
+          min_samples: 10
+          failure_threshold: 3
+          criteria:
+            - name: error-rate
+              verifier: prometheus
+              query: |
+                sum(rate(http_requests_total{job="web",env="staging",status=~"5.."}[2m]))
+                / sum(rate(http_requests_total{job="web",env="staging"}[2m]))
+              direction: lower-is-better
+              max: 0.01
+              max_ratio: 1.5
+              floor_value: 0.001         # see section 7.2 — prevents false trips
+
+      prod:
+        provider: fake
+        config: { cluster: prod, service: web }
+        strategy:
+          type: canary
+          steps:
+            - { setWeight: 5 }
+            - { verify: { bake: 5m } }
+            - { setWeight: 25 }
+            - { verify: { bake: 10m } }
+            - { setWeight: 100 }
+        promote_from: staging
+        verify:
+          bake: 10m
+          sample_interval: 30s
+          min_samples: 10
+          failure_threshold: 3
+          criteria:
+            - name: error-rate
+              verifier: prometheus
+              query: |
+                sum(rate(http_requests_total{job="web",env="prod",version="$VERSION",status=~"5.."}[2m]))
+                / sum(rate(http_requests_total{job="web",env="prod",version="$VERSION"}[2m]))
+              direction: lower-is-better
+              max: 0.01
+              max_ratio: 1.2
+              floor_value: 0.001
+            - name: p99-latency
+              verifier: prometheus
+              query: |
+                histogram_quantile(0.99,
+                  sum by (le) (rate(http_request_duration_seconds_bucket{job="web",env="prod",version="$VERSION"}[2m])))
+              direction: lower-is-better
+              max_ratio: 1.3
+              floor_value: 0.05
+        gates:
+          - type: approval
+            require_peer: true           # no self-approval
+            roles: [release-manager, sre]
+            ttl: 1h
+          - type: schedule
+            deny: ["Fri 16:00-23:59", "Sat", "Sun"]
+            timezone: America/Los_Angeles
+        rollback:
+          automatic: true
+          check_migration_floor: true    # refuse unsafe rollbacks
+          max_attempts: 2
+        notify:
+          slack:
+            channel: "#deploys"
+            on: [started, awaiting_approval, succeeded, failed, rolled_back]
+            mention_on_failure: ["@oncall-web"]
+
+environments:
+  prod:
+    require_peer_approval: true
+    protected: true
+
+roles:
+  developer:
+    - deploy:trigger    on: [dev, staging]
+    - deploy:view       on: ["*"]
+  release-manager:
+    - deploy:trigger    on: ["*"]
+    - deploy:approve    on: [prod]
+    - deploy:rollback   on: ["*"]
+  sre:
+    - deploy:approve    on: ["*"]
+    - deploy:override   on: ["*"]        # bypass gates — always alerts
+    - deploy:freeze     on: ["*"]
+    - deploy:rollback   on: ["*"]
+
+# Slack identity is not authorization (section 10.3). This table is the
+# mapping from a Slack account to an internal user, and the absence of an
+# entry is a refusal.
+identities:
+  jordan:
+    slack_id: U01JORDAN
+    email: jordan@example.com
+    roles: [developer]
+  sam:
+    slack_id: U02SAM
+    email: sam@example.com
+    roles: [release-manager]
+  alex:
+    slack_id: U03ALEX
+    email: alex@example.com
+    roles: [sre]
+
+notifiers:
+  slack:
+    mode: socket
+    bot_token: ${SLACK_BOT_TOKEN}
+    app_token: ${SLACK_APP_TOKEN}
