@@ -1,6 +1,6 @@
 # Notes on the spec
 
-Where this implementation departs from `Documentation/README.md`, and why. Each
+Where this implementation departs from `docs/design.md`, and why. Each
 entry is either a deliberate choice or a place where the document's own
 reference material would have produced a bug.
 

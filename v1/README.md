@@ -74,6 +74,7 @@ reconciles, and then **deploys again** to prove the system isn't wedged.
 
 ## Docs
 
+- [`../docs/design.md`](../docs/design.md) — the full design guide (also as [PDF](../docs/design.pdf))
 - [`docs/notes-on-the-spec.md`](docs/notes-on-the-spec.md) — where this departs from the design document, and why
 - [`docs/migrations.md`](docs/migrations.md) — expand/contract and release manifests
 - [`docs/security.md`](docs/security.md) — threat model and controls
