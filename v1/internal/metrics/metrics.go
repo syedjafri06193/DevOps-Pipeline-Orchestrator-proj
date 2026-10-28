@@ -4,7 +4,7 @@
 //
 // A tiny in-process registry rendering the Prometheus text exposition format,
 // rather than prometheus/client_golang, because this build has no module
-// proxy (see docs/notes-on-the-spec.md). The metric names, label sets and
+// proxy (see 1—Documentation/v1/notes-on-the-spec.md). The metric names, label sets and
 // semantics are the document's, so swapping in the real client is a
 // find-and-replace rather than a redesign.
 //

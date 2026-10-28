@@ -74,8 +74,8 @@ reconciles, and then **deploys again** to prove the system isn't wedged.
 
 ## Docs
 
-- [`../docs/design.md`](../docs/design.md) — the full design guide (also as [PDF](../docs/design.pdf))
-- [`docs/notes-on-the-spec.md`](docs/notes-on-the-spec.md) — where this departs from the design document, and why
-- [`docs/migrations.md`](docs/migrations.md) — expand/contract and release manifests
-- [`docs/security.md`](docs/security.md) — threat model and controls
-- [`docs/break-glass.md`](docs/break-glass.md) — what to do when the tool itself is the problem
+- [`../1—Documentation/design.md`](../1—Documentation/design.md) — the full design guide (also as [PDF](../1—Documentation/design.pdf))
+- [`../1—Documentation/v1/notes-on-the-spec.md`](../1—Documentation/v1/notes-on-the-spec.md) — where this departs from the design document, and why
+- [`../1—Documentation/v1/migrations.md`](../1—Documentation/v1/migrations.md) — expand/contract and release manifests
+- [`../1—Documentation/v1/security.md`](../1—Documentation/v1/security.md) — threat model and controls
+- [`../1—Documentation/v1/break-glass.md`](../1—Documentation/v1/break-glass.md) — what to do when the tool itself is the problem
