@@ -1,5 +1,7 @@
 # DevOps Pipeline Orchestrator (`orch`)
 
+[![CI](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/actions/workflows/ci.yml/badge.svg)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/actions/workflows/ci.yml)
+
 CLI tool and dashboard for managing multi-environment deployments with
 automated rollback, health checks, and Slack integration — for everything that
 isn't Kubernetes (VMs over SSH, ECS, Lambda, static sites, or anything a script
