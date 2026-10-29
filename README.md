@@ -73,3 +73,32 @@ Add a row per version as new iterations land.
 ## Documentation
 
 All documentation lives in [`1—Documentation/`](1—Documentation/README.md) — start with its index.
+
+<!-- project-metrics:start -->
+## Project Metrics
+
+[![Stars](https://img.shields.io/github/stars/syedjafri06193/DevOps-Pipeline-Orchestrator-proj?style=flat-square)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/stargazers) [![Forks](https://img.shields.io/github/forks/syedjafri06193/DevOps-Pipeline-Orchestrator-proj?style=flat-square)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/forks) [![Open issues](https://img.shields.io/github/issues/syedjafri06193/DevOps-Pipeline-Orchestrator-proj?style=flat-square)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/issues) [![Last commit](https://img.shields.io/github/last-commit/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/improvements?style=flat-square)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/commits/improvements) [![Commits](https://img.shields.io/github/commit-activity/t/syedjafri06193/DevOps-Pipeline-Orchestrator-proj?style=flat-square)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/commits/improvements) [![Top language](https://img.shields.io/github/languages/top/syedjafri06193/DevOps-Pipeline-Orchestrator-proj?style=flat-square)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj) [![Repo size](https://img.shields.io/github/repo-size/syedjafri06193/DevOps-Pipeline-Orchestrator-proj?style=flat-square)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj)
+
+### Code
+
+| Metric | Value |
+|---|---|
+| Lines of code | 11,351 |
+| Source files | 67 |
+| Tracked files | 79 |
+| Documentation | 8 Markdown files (14,455 words), 1 PDF |
+| Commits | 10 |
+| Contributors | 1 |
+| Active | 2026-09-11 → 2026-10-28 |
+
+| Language | Lines | Share |
+|---|---:|---:|
+| Go | 10,810 | 95.2% |
+| HTML+Django/Jinja | 189 | 1.7% |
+| YAML | 130 | 1.1% |
+| Transact-SQL | 112 | 1.0% |
+| CSS+Lasso | 59 | 0.5% |
+| Makefile | 49 | 0.4% |
+
+<sub>Code stats as of 2026-10-28, counted with pygount (comments and blank lines excluded). Badges update live.</sub>
+<!-- project-metrics:end -->
