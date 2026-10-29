@@ -5,7 +5,7 @@
 // schema verbatim so the swap is mechanical. What is implemented here is a
 // small append-only journal with the same transactional guarantees, because
 // this build has no module proxy and therefore no driver -- see
-// docs/notes-on-the-spec.md.
+// 1—Documentation/v1/notes-on-the-spec.md.
 //
 // That constraint turned out to serve the project. The whole document is
 // about crash safety:

@@ -171,7 +171,7 @@ func cmdAuditVerify(args []string) error {
 	}
 	// This is the one output in the tool that should ruin someone's afternoon.
 	return fmt.Errorf("%s\n  %v\n\n  Either the state file was edited or it is corrupt. Do not deploy\n"+
-		"  until you know which. The break-glass procedure is in docs/break-glass.md.",
+		"  until you know which. The break-glass procedure is in 1—Documentation/v1/break-glass.md.",
 		paint(red+bold, "THE AUDIT CHAIN DOES NOT VERIFY"), res["error"])
 }
 

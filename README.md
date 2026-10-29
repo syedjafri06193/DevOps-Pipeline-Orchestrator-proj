@@ -1,5 +1,7 @@
 # DevOps Pipeline Orchestrator (`orch`)
 
+[![CI](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/actions/workflows/ci.yml/badge.svg)](https://github.com/syedjafri06193/DevOps-Pipeline-Orchestrator-proj/actions/workflows/ci.yml)
+
 CLI tool and dashboard for managing multi-environment deployments with
 automated rollback, health checks, and Slack integration — for everything that
 isn't Kubernetes (VMs over SSH, ECS, Lambda, static sites, or anything a script
@@ -46,15 +48,16 @@ rollback) is in [`v1/README.md`](v1/README.md#quick-start).
 ```
 .
 ├── README.md          ← you are here
-├── docs/
+├── 1—Documentation/   ← all documentation
+│   ├── README.md      ← documentation index
 │   ├── design.md      ← full design guide (the spec code comments cite)
-│   └── design.pdf     ← same guide, PDF
+│   ├── design.pdf     ← same guide, PDF
+│   └── v1/            security, migrations, break-glass, spec errata
 └── v1/                ← first implementation
     ├── cmd/           orchd (server) and orch (CLI)
     ├── internal/      engine, store, api, auth, config, dashboard, notify/slack,
     │                  provider, verifier, metrics, redact, ulid
-    ├── examples/      orch.yaml
-    └── docs/          security, migrations, break-glass, spec errata
+    └── examples/      orch.yaml
 ```
 
 Each `vN/` directory is a self-contained iteration.
@@ -66,3 +69,7 @@ Each `vN/` directory is a self-contained iteration.
 | [v1](v1/) | Crash-safe journalled executor, verification + guarded rollback, RBAC approvals, Slack, dashboard, chaos tests | — |
 
 Add a row per version as new iterations land.
+
+## Documentation
+
+All documentation lives in [`1—Documentation/`](1—Documentation/README.md) — start with its index.

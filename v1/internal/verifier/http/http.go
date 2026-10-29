@@ -17,6 +17,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -83,7 +84,13 @@ func (v *Verifier) Sample(ctx context.Context, t verifier.Target, window time.Du
 	if err != nil {
 		return verifier.Sample{}, verifier.Inconclusive("http: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		// Drain (bounded) before closing so the keep-alive connection is
+		// reused; probing every few seconds otherwise opens a new TCP (and
+		// TLS) connection per sample.
+		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 64<<10))
+		resp.Body.Close()
+	}()
 
 	want := 200
 	if s := t.Settings["expect_status"]; s != "" {

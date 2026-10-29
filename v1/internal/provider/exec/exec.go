@@ -17,6 +17,7 @@ package exec
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -59,10 +60,9 @@ func (p *Provider) Validate(t provider.Target) error {
 				"  It must print the currently deployed version to stdout.\n"+
 				"  Without it, a crashed deploy cannot be reconciled and will always need a human", t)
 	}
-	for _, key := range []string{"deploy", "current", "shift", "abort"} {
-		if cmd := t.Config[key]; strings.Contains(cmd, "${VERSION}") && key == "current" {
-			return fmt.Errorf("exec provider for %s: the `current` command must not take a version; it reports what is deployed", t)
-		}
+	if cur := t.Config["current"]; strings.Contains(cur, "${VERSION}") ||
+		strings.Contains(cur, "$VERSION") || strings.Contains(cur, "ORCH_VERSION") {
+		return fmt.Errorf("exec provider for %s: the `current` command must not take a version; it reports what is deployed", t)
 	}
 	return nil
 }
@@ -153,6 +153,12 @@ func (p *Provider) run(ctx context.Context, t provider.Target, script string,
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, p.shell(), "-c", script)
+	// Run the script in its own process group and kill the whole group on
+	// timeout. Without this, cancelling only kills `sh`; a background child
+	// (`sleep`, a stuck ssh) keeps the output pipe open and cmd.Run blocks
+	// until it exits, so the timeout never actually fires.
+	setProcessGroup(cmd)
+	cmd.WaitDelay = waitDelay
 	cmd.Env = append(os.Environ(),
 		"ORCH_APP="+t.App,
 		"ORCH_ENVIRONMENT="+t.Environment,
@@ -174,11 +180,11 @@ func (p *Provider) run(ctx context.Context, t provider.Target, script string,
 	cmd.Stderr = out
 
 	if err := cmd.Run(); err != nil {
-		if ctx.Err() == context.DeadlineExceeded {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			return fmt.Errorf("exec: command timed out after %s: %s", p.timeout(), firstLine(script))
 		}
 		var exitErr *exec.ExitError
-		if ok := asExitError(err, &exitErr); ok {
+		if errors.As(err, &exitErr) {
 			return fmt.Errorf("exec: command exited %d: %s", exitErr.ExitCode(), firstLine(script))
 		}
 		return fmt.Errorf("exec: %w", err)
@@ -186,13 +192,9 @@ func (p *Provider) run(ctx context.Context, t provider.Target, script string,
 	return nil
 }
 
-func asExitError(err error, target **exec.ExitError) bool {
-	e, ok := err.(*exec.ExitError)
-	if ok {
-		*target = e
-	}
-	return ok
-}
+// waitDelay bounds how long Run waits for output pipes to close after the
+// process group has been killed.
+const waitDelay = 5 * time.Second
 
 func firstLine(s string) string {
 	if i := strings.IndexByte(s, '\n'); i >= 0 {
